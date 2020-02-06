@@ -6,57 +6,47 @@ Created on Mon Dec 30 10:17:42 2019
 """
 import os
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-#from scipy.stats import zscore
-#implement Dixon Q?
+
+
 os.chdir('C:\\Users\\4rest\\Documents\\GitHub\\iowa')
 raw = pd.read_excel('ars_totalP_codes.xlsx', 'p_data')
 codeTbl = pd.read_excel('ars_totalP_codes.xlsx', 'codes')
 coreTbl = pd.read_excel('ars_totalP_codes.xlsx', 'cores')
+depTbl = pd.read_excel('ars_totalP_codes.xlsx', 'dep')
+wgtTbl = pd.read_excel('ars_totalP_codes.xlsx', 'weights')
 
 codes = dict(zip(list(codeTbl['ars_code']), list(codeTbl['core_code'])))
-orders = dict(zip(list(coreTbl['Number']), list(coreTbl['Order'])))
-units = {1:'Camp Creek', 2:"Robert's Creek", 3:'Gunder', 4:'Gunder'}
+weights = dict(zip(list(wgtTbl['Name']), list(wgtTbl['Weight (g)'])))
 
+raw = raw[['Site ID', 'P 213']]
 raw['replicate'] = raw['Site ID'].str.extract(r'([a-z])')
 raw['ars_code'] = raw['Site ID'].str.extract(r'(\d*)').astype('int16')
-
+raw['weight (g)'] = raw['Site ID'].map(weights)
 raw['core_code'] = raw['ars_code'].map(codes)
 raw.loc[raw.core_code == '051e', 'core_code'] = '5105'
+raw['core_code'] = raw['core_code'].astype('str')
+raw['core_code'] = raw['core_code'].str.zfill(5)
 
-raw = raw[pd.notna(raw['core_code'])]
-missing = raw[pd.isna(raw['core_code'])]
-missing.to_csv('missing.csv')
+#For Bank Samples
+ordersBank = dict(zip(list(coreTbl['Number']), list(coreTbl['Order'])))
+units = {1:'Camp Creek', 2:"Robert's Creek", 3:'Gunder', 4:'Gunder'}
 
-raw['core_code'] = raw['core_code'].astype(str).str.zfill(5)
-raw['core'] = raw['core_code'].str[:2].astype('int16')
-raw['unit'] = raw['core_code'].str[2].astype('int16')
-raw['depth'] = raw['core_code'].str[3:].astype('int16')/10
-raw['P 213'] = raw['P 213']*100
-raw['order'] = raw['core'].map(orders)
+bank = raw[raw['core_code'].str.contains("_") == False]
 
-raw = raw.rename(columns={'Site ID':'ars_full', 'P 213':'p_mgkg'})
+bank['core'] = bank['core_code'].str[:2].astype('int16')
+bank['unit'] = bank['core_code'].str[2].astype('int16')
+bank['depth'] = bank['core_code'].str[3:].astype('int16')/10
+bank['order'] = bank['core'].map(ordersBank)
+bank['type'] = 'erosion'
 
-counts = pd.DataFrame(raw.groupby('core_code', as_index = False).size())
-counts = counts.rename(columns={0:'count'})
-raw = raw.join(counts, on='core_code')
-#raw['z_score'] = raw.groupby('core_code').p_gkg.transform(lambda x : zscore(x))
+#For Dep Samples
+ordersDep = dict(zip(list(depTbl['Site']), list(depTbl['Order'])))
 
-clean = raw[['core_code','ars_code', 'replicate', 'p_mgkg', 'core', 'unit', 
-             'depth', 'order', 'round', 'count']]
+dep= raw[raw['core_code'].str.contains("_")]
+dep['core'] = dep['core_code'].str[:3].astype('int16')
+dep['order'] = dep['core'].map(ordersDep)
+dep['type'] = 'deposition'
+
+clean = bank.append(dep)
+clean['P mgkg'] = clean['P 213'] * 50 / clean['weight (g)']
 clean.to_csv('p_clean.csv')
-
-grouped = clean.groupby('core_code', as_index = False).mean()
-grouped.unit = grouped.unit.map(units)
-grouped.to_csv('p_grouped.csv')
-print(grouped['p_mgkg'].mean())
-f, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 15))
-sns.distplot(grouped['p_mgkg'], kde = False, ax=ax1)
-sns.boxplot(x='unit', y='p_mgkg', data=grouped, ax=ax2)
-sns.boxplot(x='order', y='p_mgkg', data=grouped, ax=ax3)
-plt.savefig('initial_graphs.pdf')
-#raw['P 213'].mean()
-#
-#sns.boxplot(x='unit', y='P 213', data=raw)
-#raw.unit.unique()

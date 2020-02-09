@@ -55,7 +55,7 @@ units = {1:'Camp Creek', 2:"Robert's Creek", 3:'Gunder', 4:'Gunder'}
 bank = raw[raw['core_code'].str.contains("_") == False]
 
 bank['core'] = bank['core_code'].str[:2].astype('int16')
-bank['unit'] = bank['core_code'].str[2].astype('int16')
+bank['unit'] = bank['core_code'].str[2].astype('int16').map(units)
 bank['depth'] = bank['core_code'].str[3:].astype('int16')/10
 bank['order'] = bank['core'].map(ordersBank)
 bank['type'] = 'erosion'
@@ -69,8 +69,16 @@ dep['order'] = dep['core'].map(ordersDep)
 dep['type'] = 'deposition'
 
 clean = bank.append(dep)
-clean['density (g/cm3)'] = clean['core_code'].map(dns)
+clean['Density (g/cm3)'] = clean['core_code'].map(dns)
 clean['P (mg/kg)'] = clean['P 213'] * 50 / clean['weight (g)']
-clean['P Density (kg/m3)'] = clean['P (mg/kg)'] * clean['density (g/cm3)'] / 1000
-clean = clean.drop(['Site ID', 'P 213', 'replicate', 'ars_code', 'weight (g)'], axis=1)
+clean['P Density (kg/m3)'] = clean['P (mg/kg)'] * clean['Density (g/cm3)'] / 1000
+clean = clean.drop(['Site ID', 'P 213', 'replicate', 'ars_code', 'weight (g)', 'core'], axis=1)
 clean.to_csv('p_clean.csv')
+
+clean['P (mg/kg)'] = clean['P (mg/kg)'].astype('float')
+clean['Density (g/cm3)'] = clean['Density (g/cm3)'].astype('float')
+clean['P Density (kg/m3)'] = clean['P Density (kg/m3)'].astype('float')
+
+clean[['core_code', 'unit', 'depth', 'order', 'type']] = clean[['core_code', 'unit', 'depth', 'order', 'type']].astype('str')
+grouped = clean.groupby(['core_code', 'unit', 'depth', 'order', 'type']).mean().reset_index()
+grouped.to_csv('p_grouped.csv')

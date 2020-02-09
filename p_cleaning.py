@@ -82,3 +82,12 @@ clean['P Density (kg/m3)'] = clean['P Density (kg/m3)'].astype('float')
 clean[['core_code', 'unit', 'depth', 'order', 'type']] = clean[['core_code', 'unit', 'depth', 'order', 'type']].astype('str')
 grouped = clean.groupby(['core_code', 'unit', 'depth', 'order', 'type']).mean().reset_index()
 grouped.to_csv('p_grouped.csv')
+
+
+transform = {'Density (g/cm3)':['mean', 'std', 'sem'],
+             'P (mg/kg)':['mean', 'std', 'sem'],
+             'P Density (kg/m3)':['mean', 'std', 'sem']}
+groupedOrder = clean.groupby(['order', 'type']).agg(transform)
+groupedOrder.columns = [" ".join(x) for x in groupedOrder.columns.ravel()]
+groupedOrder.to_csv('p_groupedOrder.csv')
+

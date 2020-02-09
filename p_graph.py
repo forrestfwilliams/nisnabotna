@@ -40,18 +40,25 @@ data = pd.read_csv('p_grouped.csv')
 
 ppArgs = {'hue':'type', 'dodge':0.2, 'palette':['#C8102E', '#F1BE48'], 'linestyles':'--',
           'data':data}
+sns.set('poster', font='serif', style='white')
 
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
 sns.pointplot('order','P (mg/kg)', ax=ax1 , **ppArgs)
+ax1.set(xlabel='Strahler Stream Order', ylabel='P (mg/kg)')
+ax1.legend(loc='upper left', frameon=False)
+sns.despine()
 plt.savefig('P.png')
 
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
 sns.pointplot('order','Density (g/cm3)', ax=ax1, **ppArgs)
+ax1.set(xlabel='Strahler Stream Order', ylabel='P (g/cm3)')
+ax1.legend(loc='best', frameon=False)
+sns.despine()
 plt.savefig('Density.png')
 
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
 sns.pointplot('order','P Density (kg/m3)', ax=ax1, **ppArgs)
+ax1.set(xlabel='Strahler Stream Order', ylabel=r'P Density (kg/m^3)')
+ax1.legend(loc='upper left', frameon=False)
+sns.despine()
 plt.savefig('P Density.png')
-
-
-    

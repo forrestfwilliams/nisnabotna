@@ -21,6 +21,8 @@ def anova(row, col, data):
     print(result[1])
 
 data = pd.read_csv('p_grouped.csv')
+aimm = pd.read_csv('typeOrder.csv')
+aimm['vol'] = aimm['Volume (m3)'].abs()
 
 # anova('unit', 'P (mg/kg)', data) #No Difference
 # anova('unit', 'Density (g/cm3)', data) #Difference
@@ -38,26 +40,33 @@ data = pd.read_csv('p_grouped.csv')
 # anova('order', 'P Density (kg/m3)', data[data['type'] == 'deposition']) # Difference
 
 
-ppArgs = {'hue':'type', 'dodge':0.2, 'palette':['#C8102E', '#F1BE48'], 'linestyles':'--',}
+ppArgs = {'hue':'type', 'dodge':0.2, 'palette':['#C8102E', '#F1BE48']}
 sns.set('poster', font='serif', style='white')
 
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
-sns.pointplot('order','P (mg/kg)', ax=ax1 , data = data, **ppArgs)
+sns.pointplot('order','P (mg/kg)', ax=ax1 , data = data, ci=68, linestyles='--', **ppArgs)
 ax1.set(xlabel='Strahler Stream Order', ylabel='P (mg/kg)')
-ax1.legend(loc='upper left', frameon=False)
+ax1.legend(loc='lower left', frameon=False)
 sns.despine()
 plt.savefig('P.png')
 
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
-sns.pointplot('order','Density (g/cm3)', data = data, ax=ax1, **ppArgs)
+sns.pointplot('order','Density (g/cm3)', data = data, ax=ax1, ci=68, linestyles='--',  **ppArgs)
 ax1.set(xlabel='Strahler Stream Order', ylabel='P (g/cm3)')
-ax1.legend(loc='best', frameon=False)
+ax1.legend(loc='center left', frameon=False)
 sns.despine()
 plt.savefig('Density.png')
 
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
-sns.pointplot('order','P Density (kg/m3)', data = data, ax=ax1, **ppArgs)
-ax1.set(xlabel='Strahler Stream Order', ylabel=r'P Density (kg/m^3)')
-ax1.legend(loc='upper left', frameon=False)
+sns.barplot('order','Sed export (Mg)', data = aimm, ax=ax1, ci=None, **ppArgs)
+ax1.set(xlabel='Strahler Stream Order', ylabel='Sediment Exported (Mg)')
+ax1.legend(loc='best', frameon=False)
 sns.despine()
-plt.savefig('P Density.png')
+plt.savefig('SedExport.png')
+
+f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
+sns.barplot('order','P export (Mg)', data = aimm, ax=ax1, ci=None, **ppArgs)
+ax1.set(xlabel='Strahler Stream Order', ylabel='TP Exported (Mg)')
+ax1.legend(loc='best', frameon=False)
+sns.despine()
+plt.savefig('PExport.png')

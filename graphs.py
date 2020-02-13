@@ -20,9 +20,9 @@ def anova(row, col, data):
     result = stats.f_oneway(*vals)
     print(result[1])
 
-data = pd.read_csv('p_grouped.csv')
+data = pd.read_csv('chemSampleGrouped.csv')
 data['type'] = data['type'].str.capitalize()
-aimm = pd.read_csv('typeOrder.csv')
+aimm = pd.read_csv('resultsTypeOrder.csv')
 aimm[['Volume (m3)', 'Sed export (Mg)', 'P export (Mg)']] = aimm[['Volume (m3)', 'Sed export (Mg)', 'P export (Mg)']] * -1
 
 # anova('unit', 'P (mg/kg)', data) #No Difference

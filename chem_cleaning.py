@@ -1,27 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Dec 30 10:17:42 2019
-
-@author: 4rest
-"""
 import os
 import pandas as pd
 
 def toDic(key, value):
     dic = dict(zip(list(key), list(value)))
-    return(dic)
-    
+    return(dic)    
 
 os.chdir('C:\\Users\\fwillia1\\Documents\\GitHub\\iowa')
 
 #Load various data files
-raw = pd.read_excel('ars_totalP_codes.xlsx', 'p_data')
-codeTbl = pd.read_excel('ars_totalP_codes.xlsx', 'codes')
-coreTbl = pd.read_excel('ars_totalP_codes.xlsx', 'cores')
-depTbl = pd.read_excel('ars_totalP_codes.xlsx', 'dep')
-wgtTbl = pd.read_excel('ars_totalP_codes.xlsx', 'weights')
-dnsErdTbl = pd.read_excel('ars_totalP_codes.xlsx', 'densityErd')
-dnsDepTbl = pd.read_excel('ars_totalP_codes.xlsx', 'densityDep')
+raw = pd.read_excel('allChemData.xlsx', 'p_data')
+codeTbl = pd.read_excel('allChemData.xlsx', 'codes')
+coreTbl = pd.read_excel('allChemData.xlsx', 'cores')
+depTbl = pd.read_excel('allChemData.xlsx', 'dep')
+wgtTbl = pd.read_excel('allChemData.xlsx', 'weights')
+dnsErdTbl = pd.read_excel('allChemData.xlsx', 'densityErd')
+dnsDepTbl = pd.read_excel('allChemData.xlsx', 'densityDep')
 
 weights = toDic(wgtTbl['Name'], wgtTbl['Weight (g)'])
 codes = toDic(codeTbl['ars_code'], codeTbl['core_code'])
@@ -72,19 +65,19 @@ clean = bank.append(dep)
 clean['Density (g/cm3)'] = clean['core_code'].map(dns)
 clean['P (mg/kg)'] = clean['P 213'] * 50 / clean['weight (g)']
 clean = clean.drop(['Site ID', 'P 213', 'replicate', 'ars_code', 'weight (g)', 'core'], axis=1)
-clean.to_csv('p_clean.csv')
+clean.to_csv('chemClean.csv')
 
 clean['P (mg/kg)'] = clean['P (mg/kg)'].astype('float')
 clean['Density (g/cm3)'] = clean['Density (g/cm3)'].astype('float')
 
 clean[['core_code', 'unit', 'depth', 'order', 'type']] = clean[['core_code', 'unit', 'depth', 'order', 'type']].astype('str')
 grouped = clean.groupby(['core_code', 'unit', 'depth', 'order', 'type']).mean().reset_index()
-grouped.to_csv('p_grouped.csv')
+grouped.to_csv('chemSampleGrouped.csv')
 
 
 transform = {'Density (g/cm3)':['mean', 'std', 'sem'],
              'P (mg/kg)':['mean', 'std', 'sem']}
 groupedOrder = clean.groupby(['order', 'type']).agg(transform)
 groupedOrder.columns = [" ".join(x) for x in groupedOrder.columns.ravel()]
-groupedOrder.to_csv('p_groupedOrder.csv')
+groupedOrder.to_csv('chemGroupedOrder.csv')
 

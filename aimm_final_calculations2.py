@@ -20,7 +20,8 @@ aimm['Volume (m3)'] = aimm['Area (m2)'] * aimm['Height (m)']
 # erdFrac = 3239.7751/9901.04
 depFrac = 12198.848/25769.896
 erdFrac = 5922.1353/27193.312
-hgtFrac = 0.5/2
+# hgtFrac = 0.5/2
+hgtFrac =	1.099/2.653
 areaError = {'deposition':depFrac, 'erosion':erdFrac}
 
 grouped = aimm.groupby(['type', 'order']).sum()[['Volume (m3)']].reset_index()

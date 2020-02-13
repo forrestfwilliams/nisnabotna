@@ -24,12 +24,18 @@ hgtFrac = 0.5/2
 areaError = {'deposition':depFrac, 'erosion':erdFrac}
 
 grouped = aimm.groupby(['type', 'order']).sum()[['Volume (m3)']].reset_index()
+
 grouped['dAreaFrac'] = grouped['type'].map(areaError)
 grouped['dVolume (m3)'] = (grouped['dAreaFrac'].pow(2) + (hgtFrac**2)).pow(0.5) * grouped['Volume (m3)']
 
 grouped = grouped.merge(chem, on=['order', 'type'])
-grouped['P export (Mg)'] = grouped['Volume (m3)'] * grouped['Density (g/cm3) mean'] * grouped['P (mg/kg) mean'] * (1e-3 * 1e6 * 1e-9)
 
+grouped['Sed export (Mg)'] = grouped['Volume (m3)'] * grouped['Density (g/cm3) mean'] * 1e6 * 1e-6
+grouped['dSed export (Mg)'] = ((grouped['dVolume (m3)'].div(grouped['Volume (m3)']).pow(2) + 
+                          grouped['Density (g/cm3) sem'].div(grouped['Density (g/cm3) mean']).pow(2))
+                          **0.5)* grouped['Sed export (Mg)'].abs()
+
+grouped['P export (Mg)'] = grouped['Volume (m3)'] * grouped['Density (g/cm3) mean'] * grouped['P (mg/kg) mean'] * (1e-3 * 1e6 * 1e-9)
 grouped['dP export (Mg)'] = ((grouped['dVolume (m3)'].div(grouped['Volume (m3)']).pow(2) + 
                           grouped['Density (g/cm3) sem'].div(grouped['Density (g/cm3) mean']).pow(2) + 
                           grouped['P (mg/kg) sem'].div(grouped['P (mg/kg) mean']).pow(2))

@@ -28,7 +28,7 @@ plt.savefig('P.png')
 f, (ax1) = plt.subplots(1, 1, figsize=(15, 10))
 sns.pointplot('order','Density (g/cm3)', data = data, ax=ax1, ci=68, linestyles='--',  **ppArgs)
 ax1.set(xlabel='Strahler Stream Order', ylabel='Soil Bulk Density $(g/cm^3)$')
-ax1.legend(loc='center left', frameon=False)
+ax1.legend(loc='upper left', frameon=False)
 sns.despine()
 plt.savefig('Density.png')
 

@@ -5,7 +5,7 @@ def toDic(key, value):
     dic = dict(zip(list(key), list(value)))
     return(dic)    
 
-os.chdir('C:\\Users\\fwillia1\\Documents\\GitHub\\iowa')
+# os.chdir('C:\\Users\\fwillia1\\Documents\\GitHub\\nishnabotna')
 
 #Load various data files
 raw = pd.read_excel('allChemData.xlsx', 'p_data')
@@ -15,6 +15,7 @@ depTbl = pd.read_excel('allChemData.xlsx', 'dep')
 wgtTbl = pd.read_excel('allChemData.xlsx', 'weights')
 dnsErdTbl = pd.read_excel('allChemData.xlsx', 'densityErd')
 dnsDepTbl = pd.read_excel('allChemData.xlsx', 'densityDep')
+psaErd = pd.read_excel('allChemData.xlsx', 'psaErd', skiprows=range(0,3))[['SAMPLE', 'C', 'T', 'S']]
 
 weights = toDic(wgtTbl['Name'], wgtTbl['Weight (g)'])
 codes = toDic(codeTbl['ars_code'], codeTbl['core_code'])
